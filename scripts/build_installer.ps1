@@ -25,6 +25,49 @@ function Resolve-ExecutablePath {
     throw "$DisplayName not found: $Tool"
 }
 
+function Invoke-LoggedCommand {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath,
+        [Parameter(Mandatory = $true)]
+        [string[]]$ArgumentList,
+        [Parameter(Mandatory = $true)]
+        [string]$FailureMessage
+    )
+
+    & $FilePath @ArgumentList 2>&1 | ForEach-Object {
+        Write-Host $_
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "$FailureMessage (exit code $LASTEXITCODE)"
+    }
+}
+
+function Resolve-InstallerOutputPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$InstallerDir,
+        [Parameter(Mandatory = $true)]
+        [string]$Version
+    )
+
+    $expectedPath = Join-Path $InstallerDir ("AdminAssistant_v{0}_Setup.exe" -f $Version)
+    if (Test-Path $expectedPath) {
+        return (Resolve-Path $expectedPath).Path
+    }
+
+    $fallback = Get-ChildItem -Path $InstallerDir -Filter "AdminAssistant*_Setup.exe" -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+
+    if ($null -ne $fallback) {
+        return $fallback.FullName
+    }
+
+    return $null
+}
+
 $scriptPath = $PSCommandPath
 if ([string]::IsNullOrWhiteSpace($scriptPath)) {
     $scriptPath = $MyInvocation.MyCommand.Path
@@ -76,7 +119,10 @@ try {
         $env:PYTHONPATH = "$srcDir;$previousPythonPath"
     }
 
-    & $resolvedPythonExe -m PyInstaller --clean -y $specPath
+    Invoke-LoggedCommand `
+        -FilePath $resolvedPythonExe `
+        -ArgumentList @("-m", "PyInstaller", "--clean", "-y", $specPath) `
+        -FailureMessage "PyInstaller build failed"
 }
 finally {
     $env:PYTHONPATH = $previousPythonPath
@@ -90,18 +136,27 @@ if (-not (Test-Path (Join-Path $distDir "AdminAssistant.exe"))) {
 $distDir = (Resolve-Path $distDir).Path
 
 Write-Host "Compiling Inno Setup installer..."
-& $resolvedInnoSetupCompiler `
-    "/DMyAppVersion=$($versionInfo.version)" `
-    "/DMyAppPublisher=$($versionInfo.publisher)" `
-    "/DMyAppName=$($versionInfo.app_name)" `
-    "/DDistDir=$distDir" `
-    $installerScript
+Invoke-LoggedCommand `
+    -FilePath $resolvedInnoSetupCompiler `
+    -ArgumentList @(
+        "/DMyAppVersion=$($versionInfo.version)",
+        "/DMyAppPublisher=$($versionInfo.publisher)",
+        "/DMyAppName=$($versionInfo.app_name)",
+        "/DDistDir=$distDir",
+        $installerScript
+    ) `
+    -FailureMessage "Inno Setup build failed"
 
-$installerPath = Join-Path $projectRoot ("installer\AdminAssistant_v{0}_Setup.exe" -f $versionInfo.version)
-if (-not (Test-Path $installerPath)) {
-    throw "Installer output not found: $installerPath"
+$installerDir = Join-Path $projectRoot "installer"
+$installerPath = Resolve-InstallerOutputPath -InstallerDir $installerDir -Version $versionInfo.version
+if ([string]::IsNullOrWhiteSpace($installerPath)) {
+    throw "Installer output not found in $installerDir"
 }
 
-$installerPath = (Resolve-Path $installerPath).Path
 Write-Host "Installer build complete: $installerPath"
+
+if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_ENV)) {
+    Add-Content -Path $env:GITHUB_ENV -Value "INSTALLER_PATH=$installerPath"
+}
+
 Write-Output $installerPath

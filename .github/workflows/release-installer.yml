@@ -34,8 +34,7 @@ jobs:
         shell: pwsh
         working-directory: ${{ github.workspace }}
         run: |
-          $installerPath = & .\scripts\build_installer.ps1 -PythonExe "python"
-          Add-Content -Path $env:GITHUB_ENV -Value "INSTALLER_PATH=$installerPath"
+          & .\scripts\build_installer.ps1 -PythonExe "python"
 
       - name: Verify installer output
         shell: pwsh
