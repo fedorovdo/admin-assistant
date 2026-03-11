@@ -32,12 +32,14 @@ jobs:
 
       - name: Build Windows installer
         shell: pwsh
+        working-directory: ${{ github.workspace }}
         run: |
           $installerPath = & .\scripts\build_installer.ps1 -PythonExe "python"
           Add-Content -Path $env:GITHUB_ENV -Value "INSTALLER_PATH=$installerPath"
 
       - name: Verify installer output
         shell: pwsh
+        working-directory: ${{ github.workspace }}
         run: |
           if (-not $env:INSTALLER_PATH) {
             throw "INSTALLER_PATH was not set by the build step."

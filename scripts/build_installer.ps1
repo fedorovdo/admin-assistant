@@ -25,11 +25,32 @@ function Resolve-ExecutablePath {
     throw "$DisplayName not found: $Tool"
 }
 
-$projectRoot = Split-Path -Parent $PSScriptRoot
+$scriptPath = $PSCommandPath
+if ([string]::IsNullOrWhiteSpace($scriptPath)) {
+    $scriptPath = $MyInvocation.MyCommand.Path
+}
+$scriptDir = Split-Path -Parent $scriptPath
+$projectRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
 $specPath = Join-Path $projectRoot "AdminAssistant.spec"
 $installerScript = Join-Path $projectRoot "installer\AdminAssistant.iss"
 $distDir = Join-Path $projectRoot "dist\AdminAssistant"
 $srcDir = Join-Path $projectRoot "src"
+
+if (-not (Test-Path $specPath)) {
+    throw "PyInstaller spec file not found: $specPath"
+}
+
+if (-not (Test-Path $installerScript)) {
+    throw "Installer script not found: $installerScript"
+}
+
+if (-not (Test-Path $srcDir)) {
+    throw "Source directory not found: $srcDir"
+}
+
+$specPath = (Resolve-Path $specPath).Path
+$installerScript = (Resolve-Path $installerScript).Path
+$srcDir = (Resolve-Path $srcDir).Path
 $resolvedPythonExe = Resolve-ExecutablePath -Tool $PythonExe -DisplayName "Python executable"
 $resolvedInnoSetupCompiler = Resolve-ExecutablePath -Tool $InnoSetupCompiler -DisplayName "Inno Setup compiler"
 
@@ -66,6 +87,8 @@ if (-not (Test-Path (Join-Path $distDir "AdminAssistant.exe"))) {
     throw "Packaged executable not found in $distDir"
 }
 
+$distDir = (Resolve-Path $distDir).Path
+
 Write-Host "Compiling Inno Setup installer..."
 & $resolvedInnoSetupCompiler `
     "/DMyAppVersion=$($versionInfo.version)" `
@@ -79,5 +102,6 @@ if (-not (Test-Path $installerPath)) {
     throw "Installer output not found: $installerPath"
 }
 
+$installerPath = (Resolve-Path $installerPath).Path
 Write-Host "Installer build complete: $installerPath"
 Write-Output $installerPath
