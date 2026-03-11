@@ -1,0 +1,60 @@
+name: Release Installer
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-installer:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install project build dependencies
+        run: python -m pip install --upgrade pip
+
+      - name: Install project
+        run: python -m pip install -e ".[build]"
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          $installerPath = & .\scripts\build_installer.ps1 -PythonExe "python"
+          Add-Content -Path $env:GITHUB_ENV -Value "INSTALLER_PATH=$installerPath"
+
+      - name: Verify installer output
+        shell: pwsh
+        run: |
+          if (-not $env:INSTALLER_PATH) {
+            throw "INSTALLER_PATH was not set by the build step."
+          }
+          if (-not (Test-Path $env:INSTALLER_PATH)) {
+            throw "Installer file not found: $env:INSTALLER_PATH"
+          }
+          Write-Host "Verified installer: $env:INSTALLER_PATH"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdminAssistant-Installer
+          path: ${{ env.INSTALLER_PATH }}
+
+      - name: Attach installer to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.INSTALLER_PATH }}
+          fail_on_unmatched_files: true

@@ -5,19 +5,33 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Resolve-ExecutablePath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Tool,
+        [Parameter(Mandatory = $true)]
+        [string]$DisplayName
+    )
+
+    if (Test-Path $Tool) {
+        return (Resolve-Path $Tool).Path
+    }
+
+    $command = Get-Command $Tool -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($null -ne $command) {
+        return $command.Source
+    }
+
+    throw "$DisplayName not found: $Tool"
+}
+
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $specPath = Join-Path $projectRoot "AdminAssistant.spec"
 $installerScript = Join-Path $projectRoot "installer\AdminAssistant.iss"
 $distDir = Join-Path $projectRoot "dist\AdminAssistant"
 $srcDir = Join-Path $projectRoot "src"
-
-if (-not (Test-Path $PythonExe)) {
-    throw "Python executable not found: $PythonExe"
-}
-
-if (-not (Test-Path $InnoSetupCompiler)) {
-    throw "Inno Setup compiler not found: $InnoSetupCompiler"
-}
+$resolvedPythonExe = Resolve-ExecutablePath -Tool $PythonExe -DisplayName "Python executable"
+$resolvedInnoSetupCompiler = Resolve-ExecutablePath -Tool $InnoSetupCompiler -DisplayName "Inno Setup compiler"
 
 $versionJson = @'
 import json
@@ -28,7 +42,7 @@ from admin_assistant.version import APP_AUTHOR, APP_NAME, __version__
 print(json.dumps({"app_name": APP_NAME, "version": __version__, "publisher": APP_AUTHOR}))
 '@
 
-$versionInfo = $versionJson | & $PythonExe - | ConvertFrom-Json
+$versionInfo = $versionJson | & $resolvedPythonExe - | ConvertFrom-Json
 
 Write-Host "Building PyInstaller package for $($versionInfo.app_name) v$($versionInfo.version)..."
 Push-Location $projectRoot
@@ -41,7 +55,7 @@ try {
         $env:PYTHONPATH = "$srcDir;$previousPythonPath"
     }
 
-    & $PythonExe -m PyInstaller --clean -y $specPath
+    & $resolvedPythonExe -m PyInstaller --clean -y $specPath
 }
 finally {
     $env:PYTHONPATH = $previousPythonPath
@@ -53,11 +67,17 @@ if (-not (Test-Path (Join-Path $distDir "AdminAssistant.exe"))) {
 }
 
 Write-Host "Compiling Inno Setup installer..."
-& $InnoSetupCompiler `
+& $resolvedInnoSetupCompiler `
     "/DMyAppVersion=$($versionInfo.version)" `
     "/DMyAppPublisher=$($versionInfo.publisher)" `
     "/DMyAppName=$($versionInfo.app_name)" `
     "/DDistDir=$distDir" `
     $installerScript
 
-Write-Host "Installer build complete."
+$installerPath = Join-Path $projectRoot ("installer\AdminAssistant_v{0}_Setup.exe" -f $versionInfo.version)
+if (-not (Test-Path $installerPath)) {
+    throw "Installer output not found: $installerPath"
+}
+
+Write-Host "Installer build complete: $installerPath"
+Write-Output $installerPath
