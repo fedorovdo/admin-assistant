@@ -1,0 +1,13 @@
+PySide6>=6.8
+SQLAlchemy>=2.0
+alembic>=1.13
+pydantic>=2.8
+paramiko>=3.4
+keyring>=25.5
+httpx>=0.28
+
+[build]
+pyinstaller>=6.0
+
+[dev]
+pytest>=8.3

@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: admin-assistant
+Version: 0.1.0
+Summary: Desktop SSH script manager and AI troubleshooting assistant.
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: PySide6>=6.8
+Requires-Dist: SQLAlchemy>=2.0
+Requires-Dist: alembic>=1.13
+Requires-Dist: pydantic>=2.8
+Requires-Dist: paramiko>=3.4
+Requires-Dist: keyring>=25.5
+Requires-Dist: httpx>=0.28
+Provides-Extra: dev
+Requires-Dist: pytest>=8.3; extra == "dev"
+Provides-Extra: build
+Requires-Dist: pyinstaller>=6.0; extra == "build"
+
+# Admin Assistant
+
+Admin Assistant is a desktop application for managing SSH-accessible servers,
+storing reusable scripts, running commands/scripts across hosts, and attaching
+AI-assisted troubleshooting workflows to execution history.
+
+This repository currently contains the initial MVP scaffold only. Business
+logic-heavy areas such as SSH execution internals, AI provider integrations,
+and orchestration details are intentionally left as stubs.
+
