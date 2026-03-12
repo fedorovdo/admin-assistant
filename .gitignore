@@ -23,6 +23,7 @@ venv/
 build/
 dist/
 *.spec
+!AdminAssistant.spec
 
 # =========================
 # Installers / binaries
