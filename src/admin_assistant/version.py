@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 APP_NAME = "Admin Assistant"
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 APP_TITLE = f"{APP_NAME} v{__version__}"
 APP_DESCRIPTION = "Admin Assistant is an AI-powered desktop tool for server troubleshooting and incident investigation."
 APP_AUTHOR = "Dmitrii Fedorov"
