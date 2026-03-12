@@ -1,5 +1,11 @@
 # Admin Assistant
 
+![Build](https://img.shields.io/github/actions/workflow/status/fedorovdo/admin-assistant/release-installer.yml)
+![Release](https://img.shields.io/github/v/release/fedorovdo/admin-assistant)
+![License](https://img.shields.io/github/license/fedorovdo/admin-assistant)
+
+AI-powered Windows desktop tool for server troubleshooting and incident investigation.
+
 Admin Assistant is an AI-powered Windows desktop tool for server troubleshooting and incident investigation. It combines SSH command execution, reusable scripts, AI-assisted analysis, suggested actions, and lightweight incident workflows in a single PySide6 application.
 
 ## What It Does
