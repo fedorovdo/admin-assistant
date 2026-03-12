@@ -1,0 +1,12 @@
+PackageIdentifier: fedorovdo.AdminAssistant
+PackageVersion: 0.1.5
+InstallerType: inno
+Scope: machine
+UpgradeBehavior: install
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/fedorovdo/admin-assistant/releases/download/v0.1.5/AdminAssistant_v0.1.5_Setup.exe
+    InstallerSha256: <TO_BE_FILLED>
+    ProductCode: <TO_BE_FILLED>
+ManifestType: installer
+ManifestVersion: 1.6.0

@@ -35,12 +35,47 @@ function Invoke-LoggedCommand {
         [string]$FailureMessage
     )
 
-    & $FilePath @ArgumentList 2>&1 | ForEach-Object {
-        Write-Host $_
-    }
+    $stdoutPath = [System.IO.Path]::GetTempFileName()
+    $stderrPath = [System.IO.Path]::GetTempFileName()
+    $quotedArguments = ($ArgumentList | ForEach-Object {
+        if ($_ -match '[\s"]') {
+            '"' + ($_ -replace '"', '\"') + '"'
+        }
+        else {
+            $_
+        }
+    }) -join ' '
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "$FailureMessage (exit code $LASTEXITCODE)"
+    try {
+        $process = Start-Process `
+            -FilePath $FilePath `
+            -ArgumentList $quotedArguments `
+            -RedirectStandardOutput $stdoutPath `
+            -RedirectStandardError $stderrPath `
+            -NoNewWindow `
+            -Wait `
+            -PassThru
+
+        foreach ($path in @($stdoutPath, $stderrPath)) {
+            if (-not (Test-Path $path)) {
+                continue
+            }
+
+            Get-Content -LiteralPath $path -ErrorAction SilentlyContinue | ForEach-Object {
+                Write-Host $_
+            }
+        }
+
+        if ($process.ExitCode -ne 0) {
+            throw "$FailureMessage (exit code $($process.ExitCode))"
+        }
+    }
+    finally {
+        foreach ($path in @($stdoutPath, $stderrPath)) {
+            if (Test-Path $path) {
+                Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+            }
+        }
     }
 }
 
