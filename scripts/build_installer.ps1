@@ -35,12 +35,20 @@ function Invoke-LoggedCommand {
         [string]$FailureMessage
     )
 
-    & $FilePath @ArgumentList 2>&1 | ForEach-Object {
-        Write-Host $_
-    }
+    $previousNativePreference = $PSNativeCommandUseErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
 
-    if ($LASTEXITCODE -ne 0) {
-        throw "$FailureMessage (exit code $LASTEXITCODE)"
+    try {
+        & $FilePath @ArgumentList 2>&1 | ForEach-Object {
+            Write-Host $_
+        }
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "$FailureMessage (exit code $LASTEXITCODE)"
+        }
+    }
+    finally {
+        $PSNativeCommandUseErrorActionPreference = $previousNativePreference
     }
 }
 
