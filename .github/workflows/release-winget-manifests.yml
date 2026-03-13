@@ -1,0 +1,124 @@
+name: Generate Winget Manifests
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to generate manifests for (with or without leading v)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  generate-winget-manifests:
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Determine version and installer URL
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "push") {
+            $tag = "${{ github.ref_name }}"
+          }
+          else {
+            $rawVersion = "${{ inputs.version }}"
+            if ([string]::IsNullOrWhiteSpace($rawVersion)) {
+              throw "workflow_dispatch requires the version input."
+            }
+
+            if ($rawVersion.StartsWith("v")) {
+              $tag = $rawVersion
+            }
+            else {
+              $tag = "v$rawVersion"
+            }
+          }
+
+          $version = $tag.TrimStart("v")
+          $installerUrl = "https://github.com/fedorovdo/admin-assistant/releases/download/$tag/AdminAssistant_v${version}_Setup.exe"
+
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "INSTALLER_URL=$installerUrl" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+          Write-Host "Version: $version"
+          Write-Host "Installer URL: $installerUrl"
+
+      - name: Download installer asset
+        shell: pwsh
+        run: |
+          $installerPath = Join-Path $env:RUNNER_TEMP ("AdminAssistant_v{0}_Setup.exe" -f $env:VERSION)
+          $maxAttempts = 30
+          $delaySeconds = 20
+
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+            try {
+              Write-Host "Downloading installer (attempt $attempt/$maxAttempts)..."
+              Invoke-WebRequest -Uri $env:INSTALLER_URL -OutFile $installerPath
+              break
+            }
+            catch {
+              if ($attempt -eq $maxAttempts) {
+                throw
+              }
+
+              Write-Host "Installer asset not available yet. Waiting $delaySeconds seconds before retry."
+              Start-Sleep -Seconds $delaySeconds
+            }
+          }
+
+          if (-not (Test-Path $installerPath)) {
+            throw "Installer download failed: $installerPath"
+          }
+
+          "INSTALLER_PATH=$installerPath" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Downloaded installer to $installerPath"
+
+      - name: Calculate installer SHA256
+        shell: pwsh
+        run: |
+          $sha256 = (Get-FileHash $env:INSTALLER_PATH -Algorithm SHA256).Hash.ToUpperInvariant()
+          "INSTALLER_SHA256=$sha256" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Installer SHA256: $sha256"
+
+      - name: Generate Winget manifests
+        id: generate_manifests
+        shell: pwsh
+        run: |
+          & .\scripts\generate_winget_manifests.ps1 `
+            -Version $env:VERSION `
+            -InstallerUrl $env:INSTALLER_URL `
+            -Sha256 $env:INSTALLER_SHA256
+
+      - name: Verify generated manifests
+        shell: pwsh
+        run: |
+          $manifestDir = Join-Path $PWD "manifests\f\fedorovdo\AdminAssistant\$env:VERSION"
+          $requiredFiles = @(
+            "fedorovdo.AdminAssistant.yaml",
+            "fedorovdo.AdminAssistant.locale.en-US.yaml",
+            "fedorovdo.AdminAssistant.installer.yaml"
+          )
+
+          foreach ($fileName in $requiredFiles) {
+            $path = Join-Path $manifestDir $fileName
+            if (-not (Test-Path $path)) {
+              throw "Generated manifest file not found: $path"
+            }
+          }
+
+          Write-Host "Verified generated manifests in $manifestDir"
+
+      - name: Upload Winget manifests artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: winget-manifests-v${{ env.VERSION }}
+          path: manifests/f/fedorovdo/AdminAssistant/${{ env.VERSION }}
