@@ -36,8 +36,6 @@ Admin Assistant is designed for system administrators, DevOps engineers, and sup
 
 ## Screenshots
 
-Add screenshots to `assets/screenshots/` with the filenames below to populate this section on GitHub.
-
 ### Main Window
 
 ![Main window](assets/screenshots/main-window.png)
@@ -50,23 +48,23 @@ Core workspace with servers, scripts, execution console, and AI analysis in a si
 
 Incident Mode investigation flow showing collected evidence and AI-guided analysis.
 
-### Fix Plan
+### Suggested Actions
 
-![Fix plan](assets/screenshots/fix-plan.png)
+![Suggested actions](assets/screenshots/suggested-actions.png)
 
-Structured remediation plan with step-by-step actions that can be reviewed before execution.
+Reviewable AI-suggested follow-up commands with approval workflow before execution.
 
-### History
+### Server Configuration
 
-![History](assets/screenshots/history.png)
+![Server configuration](assets/screenshots/server-config.png)
 
-Saved run history with output replay, per-target status, and linked AI context.
+SSH server configuration dialog for adding and managing remote hosts.
 
-### Settings
+### AI Provider Configuration
 
-![Settings](assets/screenshots/settings.png)
+![AI provider configuration](assets/screenshots/ai-provider.png)
 
-Provider configuration and environment details for OpenAI, Ollama, and troubleshooting support.
+Provider setup for local or remote AI backends such as OpenAI or Ollama.
 
 ## Installation
 
