@@ -34,6 +34,40 @@ Admin Assistant is designed for system administrators, DevOps engineers, and sup
 - Run history with output replay and AI linkage
 - About dialog, System Info dialog, logs, and Windows packaging support
 
+## Screenshots
+
+Add screenshots to `assets/screenshots/` with the filenames below to populate this section on GitHub.
+
+### Main Window
+
+![Main window](assets/screenshots/main-window.png)
+
+Core workspace with servers, scripts, execution console, and AI analysis in a single desktop view.
+
+### Incident Analysis
+
+![Incident analysis](assets/screenshots/incident-analysis.png)
+
+Incident Mode investigation flow showing collected evidence and AI-guided analysis.
+
+### Fix Plan
+
+![Fix plan](assets/screenshots/fix-plan.png)
+
+Structured remediation plan with step-by-step actions that can be reviewed before execution.
+
+### History
+
+![History](assets/screenshots/history.png)
+
+Saved run history with output replay, per-target status, and linked AI context.
+
+### Settings
+
+![Settings](assets/screenshots/settings.png)
+
+Provider configuration and environment details for OpenAI, Ollama, and troubleshooting support.
+
 ## Installation
 
 ### Option 1: Windows Installer
