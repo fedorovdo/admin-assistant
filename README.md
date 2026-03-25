@@ -1,5 +1,8 @@
 # Admin Assistant
 
+> Troubleshoot servers faster with AI-assisted SSH diagnostics  
+> Run commands, analyze output, and get actionable suggestions — all in one desktop app.
+
 ![Build](https://img.shields.io/github/actions/workflow/status/fedorovdo/admin-assistant/release-installer.yml)
 ![Release](https://img.shields.io/github/v/release/fedorovdo/admin-assistant)
 ![License](https://img.shields.io/github/license/fedorovdo/admin-assistant)
@@ -10,37 +13,55 @@ Admin Assistant helps sysadmins and DevOps engineers connect to Linux hosts, run
 
 It combines SSH execution, reusable scripts, incident investigation, and approval-based AI suggestions in one Windows desktop app built for real troubleshooting workflows.
 
+👉 **[Download latest version](../../releases/latest)**
+
+## 🤔 Why Admin Assistant?
+
+Troubleshooting over SSH is often:
+
+- slow and repetitive
+- full of copy-paste between terminal and browser
+- hard to explain to others
+
+Admin Assistant combines execution, context, and AI analysis in one place — so you can diagnose issues faster and with more confidence.
+
+## 👤 Who is this for?
+
+- System administrators
+- DevOps engineers
+- Anyone working with Linux over SSH
+
 ## Screenshots
 
 ### Main Window
 
 ![Main window](assets/screenshots/main-window.png)
 
-Main workspace with servers, scripts, execution console, and AI analysis side by side.
+Main workspace where you connect to servers, run commands, and see AI analysis side by side.
 
 ### Incident Analysis
 
 ![Incident analysis](assets/screenshots/incident-analysis.png)
 
-Incident Mode gathers safe diagnostics and turns the collected evidence into a readable analysis.
+Incident Mode helps you investigate real server problems by collecting safe diagnostics and turning them into readable evidence-based analysis.
 
 ### Suggested Actions
 
 ![Suggested actions](assets/screenshots/suggested-actions.png)
 
-AI-suggested follow-up actions stay reviewable and require explicit approval before execution.
+AI-suggested follow-up actions stay understandable, reviewable, and approval-based before anything is executed.
 
 ### Server Configuration
 
 ![Server configuration](assets/screenshots/server-config.png)
 
-Add SSH hosts with password or key authentication and keep credentials out of plaintext storage.
+Add SSH hosts quickly with password or key authentication while keeping credentials out of plaintext storage.
 
 ### AI Provider Configuration
 
 ![AI provider configuration](assets/screenshots/ai-provider.png)
 
-Configure OpenAI, Ollama, or an OpenAI-compatible endpoint from the desktop UI.
+Configure OpenAI, Ollama, or an OpenAI-compatible endpoint without leaving the desktop app.
 
 ## Quick Start
 
@@ -51,6 +72,8 @@ Configure OpenAI, Ollama, or an OpenAI-compatible endpoint from the desktop UI.
 5. Click `Test` to verify SSH connectivity.
 6. Run a manual command or saved script.
 7. Click `Analyze` to get AI-based troubleshooting help.
+
+👉 You’re ready in under 1 minute
 
 ## Features
 
