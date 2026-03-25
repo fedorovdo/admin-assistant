@@ -7,13 +7,19 @@
 ![Release](https://img.shields.io/github/v/release/fedorovdo/admin-assistant)
 ![License](https://img.shields.io/github/license/fedorovdo/admin-assistant)
 
+> ⚡ Desktop tool for real-world troubleshooting workflows
+
 AI-powered desktop tool for SSH troubleshooting and system diagnostics.
 
 Admin Assistant helps sysadmins and DevOps engineers connect to Linux hosts, run commands safely, inspect output in a structured console, and use AI to explain problems in plain language.
 
 It combines SSH execution, reusable scripts, incident investigation, and approval-based AI suggestions in one Windows desktop app built for real troubleshooting workflows.
 
+## 🚀 Get started
+
 👉 **[Download latest version](../../releases/latest)**
+
+Install and start troubleshooting in minutes.
 
 ## 🤔 Why Admin Assistant?
 
@@ -85,6 +91,12 @@ Configure OpenAI, Ollama, or an OpenAI-compatible endpoint without leaving the d
 - Approval-based execution flow for AI-generated actions
 - Incident Mode for guided, evidence-driven troubleshooting
 - Run history with output replay and linked AI context
+
+## 🧱 Built with
+
+- Python + PySide6
+- Paramiko (SSH)
+- OpenAI / Ollama support
 
 ## Safety
 
