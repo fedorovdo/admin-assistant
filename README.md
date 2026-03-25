@@ -1,7 +1,5 @@
 # Admin Assistant
 
-docs: improve README for public product page
-
 ![Build](https://img.shields.io/github/actions/workflow/status/fedorovdo/admin-assistant/release-installer.yml)
 ![Release](https://img.shields.io/github/v/release/fedorovdo/admin-assistant)
 ![License](https://img.shields.io/github/license/fedorovdo/admin-assistant)
